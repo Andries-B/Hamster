@@ -27,34 +27,43 @@ The first method is to re-use an already setup iRODS environment.
 The other method is via a pure Python SSL session (without a local `irods_environment.json`). 
 In this case a settingsfile `[USER_HOME_PATH]/.hamster.json` holds the environment settings and user credentials.
 
-### Using irods environment
+### Method 1: Using irods environment
 - [ ] Login to your iRODS environment using `iinit`
 - [ ] Run Hamster `python3 main.py`
 - [ ] Hamster will use the iRODS environment and piggy-bag on the active iRODS session. 
 It will create a settingsfile `[USER_HOME_PATH]/.hamster.json`
 
-### Authentication using build-in pure python
+### Method 2: Authentication using build-in pure python
 - [ ] Create a settingsfile `[USER_HOME_PATH]/.hamster.json`
 - [ ] Run Hamster `python3 main.py`
 
-# Installing
+# Installing Hamster
+### Virtual environment
+First, you may want to setup a virtual environment
 ```bash
-pip install PyQt5 python-irodsclient
+python3 -m venv hamsterenv
+
+on Windows: call hamsterenv\scripts\activate.bat
+on Linux:   source hamsterenv/bin/activate
+
+python3 -m pip install --upgrade pip
 ```
-# Running
+
+### Clone repository and install libs
+```bash
+git clone https://github.com/Andries-B/Hamster.git
+cd Hamster/src
+python3 -m pip install -r requirements.txt
+```
+
+# Running Hamster
 ```bash
 python3 main.py
 ```
 
 # Optional: Creating an installer
 ```
-python3 -m venv hamsterenv
-Windows: call hamsterenv\scripts\activate.bat
-Linux:   source hamsterenv/bin/activate
-python3 -m pip install --upgrade pip
-pip install PyQt5 python-irodsclient
-pip install PyInstaller
-PyInstaller Hamster.spec
+pyinstaller Hamster.spec
 ```
 
 # Dependencies

@@ -1,0 +1,10 @@
+{
+	"use_irods_env": false,
+	"irods_auth": "native",
+	"irods_user_name": "anonymous",
+	"irods_host": "data.cyverse.org",
+	"irods_port": 1247,
+	"irods_zone_name": "iplant",
+	"irods_password": "",
+	"irods_home": "/iplant/home/shared"
+}

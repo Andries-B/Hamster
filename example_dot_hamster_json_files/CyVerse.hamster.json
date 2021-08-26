@@ -1,0 +1,12 @@
+{
+	"remove_unused_avu_s": false,
+	"calculate_checksum": false,
+	"use_irods_env": false,
+	"irods_auth": "native",
+	"irods_user_name": "[CyVerse username]",
+	"irods_host": "data.cyverse.org",
+	"irods_port": 1247,
+	"irods_zone_name": "iplant",
+	"irods_password": "[CyVerse password]",
+	"irods_home": "/iplant/home/[CyVerse username]"
+}
