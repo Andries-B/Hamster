@@ -1,0 +1,20 @@
+{
+    "irods_host": "[iRODS hostname]",
+    "irods_port": 1247,
+    "irods_zone_name": "[iRODS zone]",
+    "irods_home": "[iRODS home]",
+    "irods_user_name": "[iRODS username]",
+    "irods_password": "[iRODS password]",
+    "irods_auth": "pure_python_ssl",
+    "use_irods_env": false,
+    "calculate_checksum": false,
+    "irods_ssl_ca_certificate_file": "[FULL_PATH_NAME TO chain.pem]",
+    "irods_ssl_verify_server": "hostname",
+	"irods_authentication_scheme": "pam",
+    "irods_client_server_negotiation": "request_server_negotiation",
+	"irods_client_server_policy": "CS_NEG_REQUIRE",
+    "irods_encryption_algorithm": "AES-256-CBC",
+    "irods_encryption_key_size": 32,
+    "irods_encryption_num_hash_rounds": 16,
+    "irods_encryption_salt_size": 8
+}
