@@ -14,7 +14,7 @@ import os
 import json
 import time
 import ssl
-from PyQt5 import QtWidgets, QtGui
+from PyQt6 import QtWidgets, QtGui
 from irods.session import iRODSSession
 from irods.meta import iRODSMeta
 from irods.column import Criterion
