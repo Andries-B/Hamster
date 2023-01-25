@@ -69,7 +69,7 @@ pyinstaller Hamster.spec
 # Dependencies
 - The software is written in pure Python: Python >= 3.4 is needed
 - Python libraries: PyQt6, python-irodsclient >= 1.0.0
-- iRODS server: iRODS 4.2.7, 4.2.8, 4.2.9, 4.2.10 are known to work
+- iRODS server: iRODS 4.2.7, 4.2.8, 4.2.9, 4.2.10, 4.3.0 are known to work
 - iRODS server: only port 1247 is needed, no additional iRODS plugins are needed
 - iRODS server: native or PAM authentication, irods_environment or pure python (no icommands dependency), connection over SSL
 - Tested on linux
