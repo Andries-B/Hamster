@@ -1,8 +1,8 @@
-# hamster 1.51
+# hamster 1.52
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2021-08-17
+# changed: 2023-01-25
 
 
 from base64 import b64encode, b64decode
