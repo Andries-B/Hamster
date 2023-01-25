@@ -7,7 +7,7 @@ Finally, being platform independent,
 Hamster-source-code can be used as example code for custom developments to interface your own research-environment with iRODS.
 
 # Functionality
-* platform independend GUI (Windows, Linux, MacOS, python, Qt5, mostly-one-click-interface MOCI)
+* platform independend GUI (Windows, Linux, MacOS, python, Qt, mostly-one-click-interface MOCI)
 * user program (no admin rights needed for running or installation)
 * connect with any iRODS (like `iinit`, `ils`, `ipwd`, `icd`)
 * metadata: add/edit/delete on dataobjects & collections (like `imeta ls|add|mod|rm` on dataobject & collections)
