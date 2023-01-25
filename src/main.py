@@ -822,11 +822,11 @@ class HamsterApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox (self)
         dialog.setWindowTitle ("About Hamster")
-        s_1 = "Version: 1.51\n"
-        s_2 = "Licence: GNU GPL, 2019-2021\n"
+        s_1 = "Version: 1.52\n"
+        s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
-        s_5 = "Built with: Python, PyQt5, python-irodsclient\n"
+        s_5 = "Built with: Python, PyQt6, python-irodsclient\n"
         dialog.setText (s_1 + s_2 + s_3 + s_4 + s_5)
         dialog.show ()
 
