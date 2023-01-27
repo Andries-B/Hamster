@@ -1,8 +1,8 @@
-# hamster 1.52
+# hamster 1.53
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-01-25
+# changed: 2023-01-27
 
 
 from base64 import b64encode, b64decode
@@ -15,6 +15,7 @@ import json
 import time
 import ssl
 from PyQt6 import QtWidgets, QtGui
+from PyQt6.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
 from irods.session import iRODSSession
 from irods.meta import iRODSMeta
 from irods.column import Criterion
@@ -822,11 +823,11 @@ class HamsterApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox (self)
         dialog.setWindowTitle ("About Hamster")
-        s_1 = "Version: 1.52\n"
+        s_1 = "Version: 1.53\n"
         s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
-        s_5 = "Built with: Python, PyQt6, python-irodsclient\n"
+        s_5 = "Built with: Python, PyQt " + PYQT_VERSION_STR + ", python-irodsclient\n"
         dialog.setText (s_1 + s_2 + s_3 + s_4 + s_5)
         dialog.show ()
 
