@@ -7,7 +7,7 @@ Finally, being platform independent,
 Hamster-source-code can be used as example code for custom developments to interface your own research-environment with iRODS.
 
 # Functionality
-* platform independend GUI (Windows, Linux, MacOS, python, Qt, mostly-one-click-interface MOCI)
+* platform independent GUI (Windows, Linux, MacOS, python, Qt, mostly-one-click-interface MOCI)
 * user program (no admin rights needed for running or installation)
 * connect with any iRODS (like `iinit`, `ils`, `ipwd`, `icd`)
 * metadata: add/edit/delete on dataobjects & collections (like `imeta ls|add|mod|rm` on dataobject & collections)
@@ -72,6 +72,7 @@ pyinstaller Hamster.spec
 - iRODS server: iRODS 4.2.7, 4.2.8, 4.2.9, 4.2.10, 4.3.0 are known to work
 - iRODS server: only port 1247 is needed, no additional iRODS plugins are needed
 - iRODS server: native or PAM authentication, irods_environment or pure python (no icommands dependency), connection over SSL
-- Tested on linux
+- Tested on Linux
 - Tested on Windows (working: pure python, SSL, PAM authentication)
+- Tested on MacOS
 - Expected to work on iOS (not tested)
