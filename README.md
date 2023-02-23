@@ -75,4 +75,3 @@ pyinstaller Hamster.spec
 - Tested on Linux
 - Tested on Windows (working: pure python, SSL, PAM authentication)
 - Tested on MacOS
-- Expected to work on iOS (not tested)
