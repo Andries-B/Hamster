@@ -494,6 +494,9 @@ class HamsterApp (QtWidgets.QMainWindow, design.Ui_MainWindow):
         "buffered download, src: full path name iRODS dataobject; dst: full path name file"
         global MY_SESSION, NFILES, FILESIZES
         b_ok = False
+        if os.path.isfile(dst):
+            self.log_message("I will not overwrite existing files. File in question: \n"+dst)
+            return b_ok        
         obj = MY_SESSION.data_objects.get (src)
         with open (dst, "wb+") as f_dst, obj.open ('r') as f_src:
             length = MY_SESSION.data_objects.READ_BUFFER_SIZE
