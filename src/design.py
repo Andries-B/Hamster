@@ -236,7 +236,9 @@ class Ui_MainWindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.lineEdit_dc_funding_reference.setFont(font)
-        self.lineEdit_dc_funding_reference.setObjectName("lineEdit_dc_funding_reference")
+        self.lineEdit_dc_funding_reference.setObjectName(
+            "lineEdit_dc_funding_reference"
+        )
         self.verticalLayout_5.addWidget(self.lineEdit_dc_funding_reference)
         self.lineEdit_dc_rights_list = QtWidgets.QLineEdit(self.layoutWidget4)
         font = QtGui.QFont()
@@ -412,23 +414,37 @@ class Ui_MainWindow(object):
         MainWindow.setTabOrder(self.lineEdit_dc_doi, self.lineEdit_dc_title)
         MainWindow.setTabOrder(self.lineEdit_dc_title, self.lineEdit_dc_creator)
         MainWindow.setTabOrder(self.lineEdit_dc_creator, self.lineEdit_dc_publisher)
-        MainWindow.setTabOrder(self.lineEdit_dc_publisher, self.lineEdit_dc_publication_year)
-        MainWindow.setTabOrder(self.lineEdit_dc_publication_year, self.lineEdit_dc_resource_type)
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_publisher, self.lineEdit_dc_publication_year
+        )
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_publication_year, self.lineEdit_dc_resource_type
+        )
         MainWindow.setTabOrder(self.lineEdit_dc_resource_type, self.lineEdit_dc_subject)
         MainWindow.setTabOrder(self.lineEdit_dc_subject, self.lineEdit_dc_contributor)
         MainWindow.setTabOrder(self.lineEdit_dc_contributor, self.lineEdit_dc_dates)
         MainWindow.setTabOrder(self.lineEdit_dc_dates, self.lineEdit_dc_related_ids)
-        MainWindow.setTabOrder(self.lineEdit_dc_related_ids, self.lineEdit_dc_description)
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_related_ids, self.lineEdit_dc_description
+        )
         MainWindow.setTabOrder(self.lineEdit_dc_description, self.lineEdit_dc_language)
-        MainWindow.setTabOrder(self.lineEdit_dc_language, self.lineEdit_dc_alternate_ids)
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_language, self.lineEdit_dc_alternate_ids
+        )
         MainWindow.setTabOrder(self.lineEdit_dc_alternate_ids, self.lineEdit_dc_sizes)
         MainWindow.setTabOrder(self.lineEdit_dc_sizes, self.lineEdit_dc_formats)
         MainWindow.setTabOrder(self.lineEdit_dc_formats, self.lineEdit_dc_version)
-        MainWindow.setTabOrder(self.lineEdit_dc_version, self.lineEdit_dc_funding_reference)
-        MainWindow.setTabOrder(self.lineEdit_dc_funding_reference, self.lineEdit_dc_rights_list)
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_version, self.lineEdit_dc_funding_reference
+        )
+        MainWindow.setTabOrder(
+            self.lineEdit_dc_funding_reference, self.lineEdit_dc_rights_list
+        )
         MainWindow.setTabOrder(self.lineEdit_dc_rights_list, self.lineEdit_Header)
         MainWindow.setTabOrder(self.lineEdit_Header, self.lineEdit_current_dataobject)
-        MainWindow.setTabOrder(self.lineEdit_current_dataobject, self.lineEdit_current_collection)
+        MainWindow.setTabOrder(
+            self.lineEdit_current_dataobject, self.lineEdit_current_collection
+        )
         MainWindow.setTabOrder(self.lineEdit_current_collection, self.pushButtonGo)
         MainWindow.setTabOrder(self.pushButtonGo, self.listDirFiles)
         MainWindow.setTabOrder(self.listDirFiles, self.lineEdit_search)
@@ -464,7 +480,9 @@ class Ui_MainWindow(object):
         self.menuEdit.setTitle(_translate("MainWindow", "&Edit"))
         self.actionNew.setText(_translate("MainWindow", "&New"))
         self.actionNew.setShortcut(_translate("MainWindow", "Ctrl+N"))
-        self.actionUpload_Directory.setText(_translate("MainWindow", "Upl&oad Directory..."))
+        self.actionUpload_Directory.setText(
+            _translate("MainWindow", "Upl&oad Directory...")
+        )
         self.actionUpload_Directory.setShortcut(_translate("MainWindow", "Ctrl+O"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave.setShortcut(_translate("MainWindow", "Ctrl+S"))
@@ -495,5 +513,7 @@ class Ui_MainWindow(object):
         self.actionDelete.setShortcut(_translate("MainWindow", "Del"))
         self.actionProperties_Object.setText(_translate("MainWindow", "Pr&operties"))
         self.actionProperties_Object.setShortcut(_translate("MainWindow", "Alt+Return"))
-        self.actioniRODS_system_info.setText(_translate("MainWindow", "&iRODS system info"))
+        self.actioniRODS_system_info.setText(
+            _translate("MainWindow", "&iRODS system info")
+        )
         self.actionGo_Home.setText(_translate("MainWindow", "Go &Home"))
