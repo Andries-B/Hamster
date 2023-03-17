@@ -1,8 +1,8 @@
-# hamster 1.53
+# hamster 1.54
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-01-27
+# changed: 2023-03-17
 
 
 from base64 import b64encode, b64decode
@@ -153,22 +153,13 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         DICT_HAMSTER.update({"remove_unused_avu_s": False})
         DICT_HAMSTER.update({"calculate_checksum": False})
         DICT_HAMSTER.update({"use_irods_env": True})
+        DICT_HAMSTER.update({"do_not_overwrite_existing_files" : True})
         # valid values: native | irods_environment | pure_python_ssl
         DICT_HAMSTER.update({"irods_auth": "irods_environment"})
 
-        keys = [
-            "current_collection",
-            "current_dataobject",
-            "last_open",
-            "last_open_download",
-            "remove_unused_avu_s",
-            "calculate_checksum",
-            "use_irods_env",
-            "irods_auth",
-        ]
-        for key in keys:
-            if key in dict_cfg:
-                DICT_HAMSTER.update({key: dict_cfg.get(key)})
+        # copy settings/config over to current DICT_HAMSTER
+        for key in dict_cfg:
+            DICT_HAMSTER.update({key : dict_cfg.get (key)})
 
         if DICT_HAMSTER["use_irods_env"]:
             try:
@@ -548,13 +539,13 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def download_dataobject_from_irods(self, src, dst):
         "buffered download, src: full path name iRODS dataobject; dst: full path name file"
-        global MY_SESSION, NFILES, FILESIZES
+        global DICT_HAMSTER, MY_SESSION, NFILES, FILESIZES
         b_ok = False
-        if os.path.isfile(dst):
-            self.log_message(
-                "I will not overwrite existing files. File in question: \n" + dst
-            )
-            return b_ok
+        if DICT_HAMSTER['do_not_overwrite_existing_files']:
+            if os.path.isfile(dst):
+                # skip file in destination, do not replace file
+                self.log_message("Destination file exists. Skipping file:\n'" + dst + "'")
+                return b_ok        
         obj = MY_SESSION.data_objects.get(src)
         with open(dst, "wb+") as f_dst, obj.open("r") as f_src:
             length = MY_SESSION.data_objects.READ_BUFFER_SIZE
@@ -585,9 +576,14 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def zzz_download_dataobject_from_irods(self, src, dst):
         "parallel download, src: full path name iRODS dataobject; dst: full path name file"
-        global MY_SESSION, NFILES, FILESIZES
+        global DICT_HAMSTER, MY_SESSION, NFILES, FILESIZES
         # parallel download (python-irodsclient >= 1.0.0)
         b_ok = False
+        if DICT_HAMSTER['do_not_overwrite_existing_files']:
+            if os.path.isfile(dst):
+                # skip file in destination, do not replace file
+                self.log_message("Destination file exists. Skipping file:\n'" + dst + "'")
+                return b_ok        
         try:
             obj = MY_SESSION.data_objects.get(src, dst)
             NFILES += 1
@@ -927,7 +923,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle("About Hamster")
-        s_1 = "Version: 1.53\n"
+        s_1 = "Version: 1.54\n"
         s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
