@@ -43,8 +43,9 @@ First, you may want to setup a virtual environment
 ```bash
 python3 -m venv hamsterenv
 
-on Windows: call hamsterenv\scripts\activate.bat
-on Linux:   source hamsterenv/bin/activate
+on Windows commandline: call hamsterenv\scripts\activate.bat
+on Windows powershell:  .\hamsterenv\Scripts\Activate.ps1
+on Linux and MacOS:     source hamsterenv/bin/activate
 
 python3 -m pip install --upgrade pip
 ```
