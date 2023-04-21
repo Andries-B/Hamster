@@ -1,8 +1,8 @@
-# hamster 1.54
+# hamster 1.55
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-03-17
+# changed: 2023-04-21
 
 
 from base64 import b64encode, b64decode
@@ -136,30 +136,30 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.lineEdit_Header.setText("No connection")
         # init view
         self.show()
-        # init locals
-        self.status_message("Reading config...")
+
+        # define default settings...
+        DICT_HAMSTER["current_collection"] = ""
+        DICT_HAMSTER["selection_fullpath"] = ""
+        DICT_HAMSTER["current_dataobject"] = ""
+        DICT_HAMSTER["last_open"] = USER_HOME
+        DICT_HAMSTER["last_open_download"] = USER_HOME
+        DICT_HAMSTER["remove_unused_avu_s"] = False
+        DICT_HAMSTER["calculate_checksum"] = False
+        DICT_HAMSTER["use_irods_env"] = True
+        DICT_HAMSTER["do_not_overwrite_existing_files"] = True
+        # valid values for irods_auth are: "native", "irods_environment", "pure_python_ssl"
+        DICT_HAMSTER["irods_auth"] = "irods_environment"
+
+        # read ~/.hamster.json (linux style file name), put contents in dict_cfg
         dict_cfg = {}
-        # read ~/.hamster.json (linux style file name)
         FN_DOT_HAMSTER = os.path.join(USER_HOME, ".hamster.json")
+        self.status_message("Reading config file " + FN_DOT_HAMSTER)
         if os.path.isfile(FN_DOT_HAMSTER):
             with open(FN_DOT_HAMSTER, "r") as file_handle:
                 dict_cfg = json.load(file_handle)
-
-        # defaults
-        DICT_HAMSTER.update({"current_collection": ""})
-        DICT_HAMSTER.update({"current_dataobject": ""})
-        DICT_HAMSTER.update({"last_open": USER_HOME})
-        DICT_HAMSTER.update({"last_open_download": USER_HOME})
-        DICT_HAMSTER.update({"remove_unused_avu_s": False})
-        DICT_HAMSTER.update({"calculate_checksum": False})
-        DICT_HAMSTER.update({"use_irods_env": True})
-        DICT_HAMSTER.update({"do_not_overwrite_existing_files" : True})
-        # valid values: native | irods_environment | pure_python_ssl
-        DICT_HAMSTER.update({"irods_auth": "irods_environment"})
-
-        # copy settings/config over to current DICT_HAMSTER
-        for key in dict_cfg:
-            DICT_HAMSTER.update({key : dict_cfg.get (key)})
+            # copy settings/config over to current DICT_HAMSTER
+            for key in dict_cfg:
+                DICT_HAMSTER[key] = dict_cfg[key]
 
         if DICT_HAMSTER["use_irods_env"]:
             try:
@@ -170,18 +170,43 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if os.path.isfile(env_file):
                 with open(env_file, "r") as file_handle:
                     DICT_IRODS = json.load(file_handle)
+                if "irods_home" not in DICT_IRODS:
+                    # zonename/home/username
+                    DICT_IRODS["irods_home"] = (
+                        "/"
+                        + DICT_IRODS["irods_zone_name"]
+                        + "/home/"
+                        + DICT_IRDOS["irods_user_name"]
+                    )
+            else:
+                # ".hamster.json" does not exist
+                # "irods_environment" does not exist
+                # => apply settings for CyVerse anonymous access:
+                DICT_HAMSTER["use_irods_env"] = False
+                DICT_HAMSTER["irods_auth"] = "native"
+                DICT_HAMSTER["irods_host"] = "data.cyverse.org"
+                DICT_HAMSTER["irods_port"] = 1247
+                DICT_HAMSTER["irods_user_name"] = "anonymous"
+                DICT_HAMSTER["irods_password"] = ""
+                DICT_HAMSTER["irods_zone_name"] = "iplant"
+                DICT_HAMSTER["irods_home"] = "/iplant/home/shared"
 
-            if "irods_home" not in DICT_IRODS:
+        if not DICT_HAMSTER["use_irods_env"]:
+            key = "irods_home"
+            if key not in DICT_HAMSTER:
                 # zonename/home/username
-                update_dict(
-                    DICT_IRODS,
-                    "irods_home",
-                    "/"
-                    + DICT_IRODS["irods_zone_name"]
-                    + "/home/"
-                    + DICT_IRODS["irods_user_name"],
-                )
-        else:
+                if ("irods_zone_name" in DICT_HAMSTER) and (
+                    "irods_user_name" in DICT_HAMSTER
+                ):
+                    DICT_HAMSTER[key] = (
+                        "/"
+                        + DICT_HAMSTER["irods_zone_name"]
+                        + "/home/"
+                        + DICT_HAMSTER["irods_user_name"]
+                    )
+                else:
+                    DICT_HAMSTER[key] = "/"
+
             keys = [
                 "irods_user_name",
                 "irods_host",
@@ -198,17 +223,17 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 "irods_ssl_verify_server",
                 "irods_client_server_policy",
             ]
+
             for key in keys:
-                if key in dict_cfg:
-                    DICT_HAMSTER.update({key: dict_cfg.get(key)})
-                    DICT_IRODS.update({key: dict_cfg.get(key)})
+                if key in DICT_HAMSTER:
+                    DICT_IRODS[key] = DICT_HAMSTER[key]
 
             key = "irods_password"
-            if key in dict_cfg:
+            if key in DICT_HAMSTER:
                 mask = (
                     "cmZzYXJhLm5sMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYI"
                 )
-                pw_cfg = dict_cfg.get(key)
+                pw_cfg = DICT_HAMSTER[key]
                 try:
                     # maybe pw is encoded, try to decode it
                     pw_decoded = xor_decode(pw_cfg, mask)
@@ -216,30 +241,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     # if it is not encoded, decoding might fail
                     pw_decoded = "not valid"
                 if pw_decoded[:9] == "decoded::":
-                    DICT_HAMSTER[key] = dict_cfg[key]
                     DICT_IRODS[key] = pw_decoded[9:]
                 else:
-                    pw_encoded = xor_encode("decoded::" + dict_cfg[key], mask)
+                    DICT_IRODS[key] = DICT_HAMSTER[key]
+                    pw_encoded = xor_encode("decoded::" + DICT_HAMSTER[key], mask)
                     DICT_HAMSTER[key] = pw_encoded
-                    DICT_IRODS[key] = dict_cfg[key]
-
-            key = "irods_home"
-            if key not in dict_cfg:
-                # zonename/home/username
-                if ("irods_zone_name" in DICT_IRODS) and (
-                    "irods_user_name" in DICT_IRODS
-                ):
-                    irods_home = (
-                        "/"
-                        + DICT_IRODS["irods_zone_name"]
-                        + "/home/"
-                        + DICT_IRODS["irods_user_name"]
-                    )
-                    DICT_HAMSTER.update({key: irods_home})
-                    DICT_IRODS.update({key: irods_home})
-                else:
-                    DICT_HAMSTER.update({key: "/"})
-                    DICT_IRODS.update({key: "/"})
 
         self.status_message("Connecting to server...")
 
@@ -253,13 +259,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             ) as MY_SESSION:
                 self.status_message("Connected")
                 try:
-                    MY_SESSION.collections.get(DICT_HAMSTER.get("current_collection"))
+                    MY_SESSION.collections.get(DICT_HAMSTER["current_collection"])
                 except CollectionDoesNotExist:
-                    update_dict(
-                        DICT_HAMSTER, "current_collection", DICT_IRODS["irods_home"]
-                    )
+                    DICT_HAMSTER["current_collection"] = DICT_IRODS["irods_home"]
                 self.update_collections_and_dataobjects_view(
-                    DICT_HAMSTER.get("current_collection")
+                    DICT_HAMSTER["current_collection"]
                 )
 
         if DICT_HAMSTER["irods_auth"] == "irods_environment":
@@ -271,13 +275,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             with iRODSSession(irods_env_file=env_file, **ssl_settings) as MY_SESSION:
                 self.status_message("Connected")
                 try:
-                    MY_SESSION.collections.get(DICT_HAMSTER.get("current_collection"))
+                    MY_SESSION.collections.get(DICT_HAMSTER["current_collection"])
                 except CollectionDoesNotExist:
-                    update_dict(
-                        DICT_HAMSTER, "current_collection", DICT_IRODS["irods_home"]
-                    )
+                    DICT_HAMSTER["current_collection"] = DICT_IRODS["irods_home"]
                 self.update_collections_and_dataobjects_view(
-                    DICT_HAMSTER.get("current_collection")
+                    DICT_HAMSTER["current_collection"]
                 )
 
         if DICT_HAMSTER["irods_auth"] == "pure_python_ssl":
@@ -311,13 +313,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             ) as MY_SESSION:
                 self.status_message("Connected")
                 try:
-                    MY_SESSION.collections.get(DICT_HAMSTER.get("current_collection"))
+                    MY_SESSION.collections.get(DICT_HAMSTER["current_collection"])
                 except CollectionDoesNotExist:
-                    update_dict(
-                        DICT_HAMSTER, "current_collection", DICT_IRODS["irods_home"]
-                    )
+                    DICT_HAMSTER["current_collection"] = DICT_IRODS["irods_home"]
                 self.update_collections_and_dataobjects_view(
-                    DICT_HAMSTER.get("current_collection")
+                    DICT_HAMSTER["current_collection"]
                 )
 
     def init_menus(self):
@@ -368,8 +368,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def slot_upload_file(self):
         "Upload File/Data Object"
         global DICT_HAMSTER
-        current_collection = DICT_HAMSTER.get("current_collection")
-        last_open = DICT_HAMSTER.get("last_open")
+        current_collection = DICT_HAMSTER["current_collection"]
+        last_open = DICT_HAMSTER["last_open"]
         fname, _ = QtWidgets.QFileDialog.getOpenFileName(
             self, "Choose File to upload", last_open
         )
@@ -393,8 +393,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "Upload Directory/Collection"
         global FILESIZES, NFILES, NDIRS, FILESIZES_SCAN, NFILES_SCAN, NDIRS_SCAN, FILESIZES_SCAN_MB
         global DICT_HAMSTER
-        current_collection = DICT_HAMSTER.get("current_collection")
-        last_open = DICT_HAMSTER.get("last_open")
+        current_collection = DICT_HAMSTER["current_collection"]
+        last_open = DICT_HAMSTER["last_open"]
         directory = QtWidgets.QFileDialog.getExistingDirectory(
             self, "Choose Directory to upload", last_open
         )
@@ -425,9 +425,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     self,
                     "Upload Collection",
                     msg,
-                    buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                    buttons=QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
                 )
-                if button == QtWidgets.QMessageBox.Ok:
+                if button == QtWidgets.QMessageBox.StandardButton.Ok:
                     ticks_start = time.time()
                     self.upload_dirs_to_irods(last_open, current_collection)
                     ticks_finish = time.time()
@@ -451,9 +451,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         NFILES_SCAN = 0
         NDIRS_SCAN = 0
 
-        current_collection = DICT_HAMSTER.get("current_collection")
-        last_open_download = DICT_HAMSTER.get("last_open_download")
-        current_dataobject = DICT_HAMSTER.get("current_dataobject")
+        current_collection = DICT_HAMSTER["current_collection"]
+        last_open_download = DICT_HAMSTER["last_open_download"]
+        current_dataobject = DICT_HAMSTER["current_dataobject"]
         fullpath_name = ""
 
         if current_dataobject:
@@ -545,7 +545,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if os.path.isfile(dst):
                 # skip file in destination, do not replace file
                 self.log_message("Destination file exists. Skipping file:\n'" + dst + "'")
-                return b_ok        
+                return b_ok
         obj = MY_SESSION.data_objects.get(src)
         with open(dst, "wb+") as f_dst, obj.open("r") as f_src:
             length = MY_SESSION.data_objects.READ_BUFFER_SIZE
@@ -583,7 +583,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             if os.path.isfile(dst):
                 # skip file in destination, do not replace file
                 self.log_message("Destination file exists. Skipping file:\n'" + dst + "'")
-                return b_ok        
+                return b_ok
         try:
             obj = MY_SESSION.data_objects.get(src, dst)
             NFILES += 1
@@ -603,7 +603,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         global FN_DOT_HAMSTER, DICT_HAMSTER
         # write/update metadata changes
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         self.cp_form_to_irods_avu(selection_fullpath)
         # SOME_DAY: when there are many unused AVU's, it takes to long to close Hamster
         #           remove unused avu's
@@ -624,7 +624,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         global MY_SESSION, DICT_HAMSTER
         global FILESIZES_SCAN, NFILES_SCAN, FILESIZES_SCAN_MB
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         object_exists = False
         if selection_fullpath:
             if selection_fullpath.endswith("/"):
@@ -719,8 +719,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def slot_rename(self):
         "comment here"
         global MY_SESSION, DICT_HAMSTER
-        current_collection = DICT_HAMSTER.get("current_collection")
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        current_collection = DICT_HAMSTER["current_collection"]
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         fullpath_name = ""
         new_name = self.lineEdit_current_dataobject.text().strip()
         # TODO check syntax input new_name, never trust user input
@@ -741,9 +741,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                         self,
                         "Rename Collection",
                         msg,
-                        buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                        buttons=QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
                     )
-                    if button == QtWidgets.QMessageBox.Ok:
+                    if button == QtWidgets.QMessageBox.StandardButton.Ok:
                         self.status_message(msg)
                         try:
                             MY_SESSION.collections.move(fullpath_name, new_name)
@@ -767,9 +767,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                         self,
                         "Rename Dataobject",
                         msg,
-                        buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                        buttons=QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
                     )
-                    if button == QtWidgets.QMessageBox.Ok:
+                    if button == QtWidgets.QMessageBox.StandardButton.Ok:
                         self.status_message("Rename " + msg)
                         try:
                             MY_SESSION.data_objects.move(fullpath_name, new_name)
@@ -785,8 +785,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         global MY_SESSION, DICT_HAMSTER
         global FILESIZES_SCAN, NFILES_SCAN, FILESIZES_SCAN_MB
-        current_collection = DICT_HAMSTER.get("current_collection")
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        current_collection = DICT_HAMSTER["current_collection"]
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         del_coll = ""
         if selection_fullpath:
             if selection_fullpath.endswith("/"):
@@ -810,9 +810,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     self,
                     "Delete Collection",
                     msg,
-                    buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                    buttons=QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
                 )
-                if button == QtWidgets.QMessageBox.Ok:
+                if button == QtWidgets.QMessageBox.StandardButton.Ok:
                     self.status_message(msg)
                     try:
                         MY_SESSION.collections.remove(del_coll)
@@ -834,9 +834,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     self,
                     "Delete Dataobject",
                     msg,
-                    buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+                    buttons=QtWidgets.QMessageBox.StandardButton.Ok | QtWidgets.QMessageBox.StandardButton.Cancel
                 )
-                if button == QtWidgets.QMessageBox.Ok:
+                if button == QtWidgets.QMessageBox.StandardButton.Ok:
                     try:
                         self.status_message(msg)
                         # OLD: MY_SESSION.data_objects.unlink (selection_fullpath)
@@ -923,7 +923,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle("About Hamster")
-        s_1 = "Version: 1.54\n"
+        s_1 = "Version: 1.55\n"
         s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
@@ -936,8 +936,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     ):  # Not an index, i is a QListItem
         "comment here"
         global DICT_HAMSTER
-        current_collection = DICT_HAMSTER.get("current_collection")
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        current_collection = DICT_HAMSTER["current_collection"]
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         if prev_item is not None:
             # print ("slot_index_changed    <<< previous:", prev_item.text())
             self.cp_form_to_irods_avu(selection_fullpath)
@@ -967,7 +967,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 self.cp_irods_avu_to_form(selection_fullpath)
             else:
                 # relative path
-                current_collection = DICT_HAMSTER.get("current_collection")
+                current_collection = DICT_HAMSTER["current_collection"]
                 current_dataobject = curr_item.text()
                 if current_dataobject.endswith("../"):
                     current_dataobject = current_collection + "/"
@@ -990,8 +990,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def slot_list_item_double_clicked(self, i):
         "comment here"
         global MY_SESSION, DICT_HAMSTER
-        current_collection = DICT_HAMSTER.get("current_collection")
-        selection_fullpath = DICT_HAMSTER.get("selection_fullpath")
+        current_collection = DICT_HAMSTER["current_collection"]
+        selection_fullpath = DICT_HAMSTER["selection_fullpath"]
         self.cp_form_to_irods_avu(selection_fullpath)
 
         new_dir = ""
@@ -1149,7 +1149,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 "Error: unable to upload " + filename + " to " + objectname
             )
             return
-        if DICT_HAMSTER.get("calculate_checksum"):
+        if DICT_HAMSTER["calculate_checksum"]:
             try:
                 sha = self.calculate_sha256_checksum(filename)
                 obj = MY_SESSION.data_objects.get(objectname)
