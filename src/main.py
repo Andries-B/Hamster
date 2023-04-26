@@ -1,8 +1,8 @@
-# hamster 1.55
+# hamster 1.56
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-04-21
+# changed: 2023-04-26
 
 
 from base64 import b64encode, b64decode
@@ -176,7 +176,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                         "/"
                         + DICT_IRODS["irods_zone_name"]
                         + "/home/"
-                        + DICT_IRDOS["irods_user_name"]
+                        + DICT_IRODS["irods_user_name"]
                     )
             else:
                 # ".hamster.json" does not exist
@@ -923,7 +923,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle("About Hamster")
-        s_1 = "Version: 1.55\n"
+        s_1 = "Version: 1.56\n"
         s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
