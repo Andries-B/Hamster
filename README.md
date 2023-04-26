@@ -38,6 +38,14 @@ It will create a settingsfile `[USER_HOME_PATH]/.hamster.json`
 - [ ] Run Hamster `python3 main.py`
 
 # Installing Hamster
+### Choosing between PyQt6 and PyQt5
+Current development of Hamster is for PyQt6. 
+All instruction here are for building/running a PyQt6 version.
+PyQt6 sources are in the "src" directory.
+
+However for those systems that cannot run PyQt6, a version of Hamster for the older PyQt5 is provided here as well. 
+If you want to build/run the PyQt5 version, change to directory "src-qt5" (instead of "src").
+
 ### Virtual environment
 First, you may want to setup a virtual environment
 ```bash
@@ -69,7 +77,7 @@ pyinstaller Hamster.spec
 
 # Dependencies
 - The software is written in pure Python: Python >= 3.4 is needed
-- Python libraries: PyQt6, python-irodsclient >= 1.0.0
+- Python libraries: PyQt6 (or PyQt5), python-irodsclient >= 1.0.0
 - iRODS server: iRODS 4.2.7, 4.2.8, 4.2.9, 4.2.10, 4.3.0 are known to work
 - iRODS server: only port 1247 is needed, no additional iRODS plugins are needed
 - iRODS server: native or PAM authentication, irods_environment or pure python (no icommands dependency), connection over SSL

@@ -1,0 +1,3 @@
+PyQt5
+python-irodsclient>=1.0.0
+PyInstaller>=3.4
