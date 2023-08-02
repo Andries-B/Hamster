@@ -1,4 +1,4 @@
-# hamster 1.56-qt5
+# hamster 1.57-qt5
 #
 # author: A. Broekema
 # created: 2019-12-08
@@ -20,9 +20,7 @@ from irods.session import iRODSSession
 from irods.meta import iRODSMeta
 from irods.column import Criterion
 
-# TODO for Hamster 1.57
-#from getpass import getpass
-
+from getpass import getpass
 
 # from irods.column import Like
 from irods.models import DataObject, DataObjectMeta, Collection, CollectionMeta
@@ -130,19 +128,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         global DICT_DC, DICT_COPY, DICT_UNDO
         global COLOR_FILE_NO_SIDE, COLOR_DIR_NO_SIDE
         global MY_SESSION
-        #
-        # TODO for Hamster 1.57
-        # password=getpass("Please enter your iRODS password: ")
 
         super().__init__(*args, **kwargs)
         # super is used here to allow access to variables, methods etc in design.py
         self.setupUi(self)  # this is defined in design.py file automatically
         # it sets up layout and widgets that are defined
-
-        self.init_menus()
-        self.lineEdit_Header.setText("No connection")
-        # init view
-        self.show()
 
         # define default settings...
         DICT_HAMSTER["current_collection"] = ""
@@ -153,6 +143,8 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         DICT_HAMSTER["remove_unused_avu_s"] = False
         DICT_HAMSTER["calculate_checksum"] = False
         DICT_HAMSTER["use_irods_env"] = True
+        DICT_HAMSTER["save_password"] = True
+        DICT_HAMSTER["login_prompt"] = "Please enter your iRODS password: "
         DICT_HAMSTER["do_not_overwrite_existing_files"] = True
         # valid values for irods_auth are: "native", "irods_environment", "pure_python_ssl"
         DICT_HAMSTER["irods_auth"] = "irods_environment"
@@ -236,11 +228,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     DICT_IRODS[key] = DICT_HAMSTER[key]
 
             key = "irods_password"
-            mask = (
-                    "cmZzYXJhLm5sMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYI"
-                    )
-            if key in DICT_HAMSTER:
+            mask = ( "cmZzYXJhLm5sMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYI" )
 
+            if key in DICT_HAMSTER:
                 pw_cfg = DICT_HAMSTER[key]
                 try:
                     # maybe pw is encoded, try to decode it
@@ -255,9 +245,19 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     pw_encoded = xor_encode("decoded::" + DICT_HAMSTER[key], mask)
                     DICT_HAMSTER[key] = pw_encoded
             else:
-                # TODO for Hamster 1.57
-                # DICT_IRODS[key] = password
+                # prompt for password, CLI
+                cli_password=getpass(DICT_HAMSTER["login_prompt"])
+                DICT_IRODS[key] = cli_password
+                # Store password in config file (.hamster.json)
+                if DICT_HAMSTER["save_password"]:
+                    pw_encoded = xor_encode("decoded::" + cli_password, mask)
+                    DICT_HAMSTER[key] = pw_encoded
 
+        # init graphical menu system
+        self.init_menus()
+        self.lineEdit_Header.setText("No connection")
+        # init view
+        self.show()
         self.status_message("Connecting to server...")
 
         if DICT_HAMSTER["irods_auth"] == "native":
@@ -938,7 +938,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         "comment here"
         dialog = QtWidgets.QMessageBox(self)
         dialog.setWindowTitle("About Hamster")
-        s_1 = "Version: 1.56-qt5\n"
+        s_1 = "Version: 1.57-qt5\n"
         s_2 = "Licence: GNU GPL, 2019-2023\n"
         s_3 = "Author: Andries Broekema\n"
         s_4 = "Homepage: https://github.com/andries-b/hamster\n"
