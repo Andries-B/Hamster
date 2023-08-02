@@ -2,7 +2,7 @@
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-04-26
+# changed: 2023-08-02
 
 
 from base64 import b64encode, b64decode
@@ -19,7 +19,11 @@ from PyQt5.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
 from irods.session import iRODSSession
 from irods.meta import iRODSMeta
 from irods.column import Criterion
-from getpass import getpass
+
+# TODO for Hamster 1.57
+#from getpass import getpass
+
+
 # from irods.column import Like
 from irods.models import DataObject, DataObjectMeta, Collection, CollectionMeta
 from irods.models import User, UserGroup
@@ -126,7 +130,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         global DICT_DC, DICT_COPY, DICT_UNDO
         global COLOR_FILE_NO_SIDE, COLOR_DIR_NO_SIDE
         global MY_SESSION
-        password=getpass("Please enter your ZDV password")
+        #
+        # TODO for Hamster 1.57
+        # password=getpass("Please enter your iRODS password: ")
 
         super().__init__(*args, **kwargs)
         # super is used here to allow access to variables, methods etc in design.py
@@ -249,8 +255,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     pw_encoded = xor_encode("decoded::" + DICT_HAMSTER[key], mask)
                     DICT_HAMSTER[key] = pw_encoded
             else:
+                # TODO for Hamster 1.57
+                # DICT_IRODS[key] = password
 
-                DICT_IRODS[key] = password
         self.status_message("Connecting to server...")
 
         if DICT_HAMSTER["irods_auth"] == "native":
