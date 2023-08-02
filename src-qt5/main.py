@@ -19,7 +19,7 @@ from PyQt5.QtCore import QT_VERSION_STR, PYQT_VERSION_STR
 from irods.session import iRODSSession
 from irods.meta import iRODSMeta
 from irods.column import Criterion
-
+from getpass import getpass
 # from irods.column import Like
 from irods.models import DataObject, DataObjectMeta, Collection, CollectionMeta
 from irods.models import User, UserGroup
@@ -126,6 +126,7 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         global DICT_DC, DICT_COPY, DICT_UNDO
         global COLOR_FILE_NO_SIDE, COLOR_DIR_NO_SIDE
         global MY_SESSION
+        password=getpass("Please enter your ZDV password")
 
         super().__init__(*args, **kwargs)
         # super is used here to allow access to variables, methods etc in design.py
@@ -229,10 +230,11 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     DICT_IRODS[key] = DICT_HAMSTER[key]
 
             key = "irods_password"
-            if key in DICT_HAMSTER:
-                mask = (
+            mask = (
                     "cmZzYXJhLm5sMA4GA1UdDwEB/wQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDAQYI"
-                )
+                    )
+            if key in DICT_HAMSTER:
+
                 pw_cfg = DICT_HAMSTER[key]
                 try:
                     # maybe pw is encoded, try to decode it
@@ -246,7 +248,9 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     DICT_IRODS[key] = DICT_HAMSTER[key]
                     pw_encoded = xor_encode("decoded::" + DICT_HAMSTER[key], mask)
                     DICT_HAMSTER[key] = pw_encoded
+            else:
 
+                DICT_IRODS[key] = password
         self.status_message("Connecting to server...")
 
         if DICT_HAMSTER["irods_auth"] == "native":
@@ -302,23 +306,27 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 "encryption_salt_size": int(DICT_IRODS["irods_encryption_salt_size"]),
                 "ssl_context": ssl_context,
             }
-            with iRODSSession(
-                host=DICT_IRODS["irods_host"],
-                port=int(DICT_IRODS["irods_port"]),
-                authentication_scheme=DICT_IRODS["irods_authentication_scheme"],
-                user=DICT_IRODS["irods_user_name"],
-                password=DICT_IRODS["irods_password"],
-                zone=DICT_IRODS["irods_zone_name"],
-                **ssl_settings
-            ) as MY_SESSION:
-                self.status_message("Connected")
-                try:
-                    MY_SESSION.collections.get(DICT_HAMSTER["current_collection"])
-                except CollectionDoesNotExist:
-                    DICT_HAMSTER["current_collection"] = DICT_IRODS["irods_home"]
-                self.update_collections_and_dataobjects_view(
-                    DICT_HAMSTER["current_collection"]
-                )
+            try:
+                with iRODSSession(
+                    host=DICT_IRODS["irods_host"],
+                    port=int(DICT_IRODS["irods_port"]),
+                    authentication_scheme=DICT_IRODS["irods_authentication_scheme"],
+                    user=DICT_IRODS["irods_user_name"],
+                    password=DICT_IRODS["irods_password"],
+                    zone=DICT_IRODS["irods_zone_name"],
+                    **ssl_settings
+                ) as MY_SESSION:
+                    self.status_message("Connected")
+                    try:
+                        MY_SESSION.collections.get(DICT_HAMSTER["current_collection"])
+                    except CollectionDoesNotExist:
+                        DICT_HAMSTER["current_collection"] = DICT_IRODS["irods_home"]
+                    self.update_collections_and_dataobjects_view(
+                        DICT_HAMSTER["current_collection"]
+                    )
+            except:
+                print("Your password or JSON setup is incorrect. Please check again.")
+                exit()
 
     def init_menus(self):
         "init menu's and buttons"
