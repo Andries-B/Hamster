@@ -2,7 +2,7 @@
 #
 # author: A. Broekema
 # created: 2019-12-08
-# changed: 2023-08-02
+# changed: 2023-08-16
 
 
 from base64 import b64encode, b64decode
@@ -253,6 +253,17 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 if DICT_HAMSTER["save_password"]:
                     pw_encoded = xor_encode("decoded::" + cli_password, mask)
                     DICT_HAMSTER[key] = pw_encoded
+
+
+
+
+        #
+        loginWindow = LoginWindow()
+        loginWindow.show()
+        #
+
+
+
 
         # init graphical menu system
         self.init_menus()
@@ -1532,6 +1543,66 @@ class HamsterApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # SOME_DAY: finish this code
         # self.lineEdit_Status.setText (msg)
         # self.show () OR self.refresh () OR self.update () ???
+
+
+
+class LoginWindow(QtWidgets.QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Login')
+        self.setWindowIcon(QtGui.QIcon(''))
+        self.window_width, self.window_height = 600, 200
+        self.setFixedSize(self.window_width, self.window_height)
+
+        layout = QtWidgets.QGridLayout()
+        self.setLayout(layout)
+
+        labels = {}
+        self.lineEdits = {}
+
+        labels['Username'] = QtWidgets.QLabel('Username')
+        labels['Password'] = QtWidgets.QLabel('Password')
+        labels['Username'].setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        labels['Password'].setSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+
+        self.lineEdits['Username'] = QtWidgets.QLineEdit()
+        self.lineEdits['Password'] = QtWidgets.QLineEdit()
+        self.lineEdits['Password'].setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+
+        layout.addWidget(labels['Username'],            0, 0, 1, 1)
+        layout.addWidget(self.lineEdits['Username'],    0, 1, 1, 3)
+
+        layout.addWidget(labels['Password'],            1, 0, 1, 1)
+        layout.addWidget(self.lineEdits['Password'],    1, 1, 1, 3)
+
+        button_login = QtWidgets.QPushButton('&Log In', clicked=self.checkCredential)
+        layout.addWidget(button_login,                  2, 3, 1, 1)
+
+        self.status = QtWidgets.QLabel('')
+        self.status.setStyleSheet('font-size: 25px; color: red;')
+        layout.addWidget(self.status, 3, 0, 1, 3)
+
+
+    def checkCredential(self):
+        username = self.lineEdits['Username'].text()
+        password = self.lineEdits['Password'].text()
+
+        # query = QSqlQuery()
+        # query.prepare('SELECT * FROM Users WHERE Username=:username')
+        # query.bindValue(':username', username)
+        # query.exec()
+
+        if True:
+            if True:
+                time.sleep(1)
+                self.mainApp = HamsterApp()
+                self.mainApp.show()
+                self.close()
+            else:
+                self.status.setText('Password is incorrect')
+        else:
+            self.status.setText('Username is not found')                
+
 
 
 if __name__ == "__main__":
